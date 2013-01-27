@@ -1,0 +1,59 @@
+package Gideon::Manual;
+
+# ABSTRACT: What is Gideon, and how do I use it?
+
+=pod
+
+=head1 NAME
+
+Gideon::Manual - What is Gideon, and how do I use it?
+
+=head1 VERSION
+
+version
+
+=head1 WHAT IS GIDEON?
+
+Gideon is a mapping layer between POMO ( Plain Old Moose Objects ) and your data
+sources such as databases, Non-SQL storage and more. It provides a common
+interface for your persisted objects no matter what the source is so you can
+concentrate on your model ( classes and their relationship ) instead of teh code
+for accessing the data.
+
+=head1 WHY GIDEON?
+
+There are other projects that attempt to do a similar job but Gideon is different
+in the sense that the interface provided for your classes doesn't depend on the
+data source, folliwing the Data Mapper pattern by Martin Fowler. Gideon also
+tries very hard to couse as less impact as possible on your class design.
+
+=head1 AN EXAMPLE
+
+  package Customer;
+  use Gideon driver => 'DBI';
+
+  has id => ( 
+      is          => 'rw',
+      isa         => 'Num', 
+      traits      => [ 'Gideon::DBI::Column' ],
+      primary_key => 1
+  );
+
+  has name => ( 
+      is          => 'rw',
+      isa         => 'Str', 
+      traits      => [ 'Gideon::DBI::Column' ],
+  );
+
+  __PACKAGE__->meta->store('mydb:customers');
+  __PACKAGE__->meta->make_immutable;
+
+As you can see this is a POMO with an extended meta definition and that's all
+that Gideon needs.
+
+  my $customer = Customer->find_one;
+  $customer->remove;
+
+  my @johns    = Customer->find( name => 'john' );
+
+=cut
