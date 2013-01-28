@@ -1,3 +1,10 @@
+{
+    package TestClass;
+    use Moose;
+
+    __PACKAGE__->meta->make_immutable;
+}
+
 use MooseX::Test::Role;
 use Gideon::Driver;
 use Gideon::ResultSet;
@@ -12,6 +19,7 @@ use Test::More tests => 11;
             is $_[1], 'TestClass', $test_name;
             is_deeply $_[2], { id   => 1 },    $test_name;
             is_deeply $_[3], { desc => 'id' }, $test_name;
+            TestClass->new;
         }
     );
 
@@ -25,8 +33,10 @@ use Test::More tests => 11;
 # find multiple in scalar context
 {
     my $test_name = 'Gideon::ResulSet returned when invoked in scalar context';
+
     my $fake_driver =
       consumer_of( 'Gideon::Driver', _find => sub { ok 0, $test_name } );
+
 
     my $rs = $fake_driver->find( 'TestClass', id => 1, -order => ['id'] );
 

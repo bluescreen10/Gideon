@@ -26,6 +26,7 @@ sub import {
         *{ $target . "::find_one" } = sub { $driver_class->find_one(@_) };
         *{ $target . "::update" }   = sub { $driver_class->update(@_) };
         *{ $target . "::remove" }   = sub { $driver_class->remove(@_) };
+        *{ $target . "::save" }     = sub { $driver_class->save(@_) };
         use strict 'refs';
     }
 

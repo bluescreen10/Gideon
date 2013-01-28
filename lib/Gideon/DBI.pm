@@ -1,6 +1,6 @@
 package Gideon::DBI;
-
 use Moose;
+
 use Gideon::Meta::Attribute::DBI::Column;
 use SQL::Abstract::Limit;
 
@@ -34,8 +34,61 @@ sub _find {
     return @instances;
 }
 
+sub _insert_object {
+    my ( $class, $target ) = @_;
+
+    my ( $dbh, $table ) = $class->_get_dbh_and_table($target);
+
+    my @columns = $class->_get_columns($target);
+    my ($serial) = map { $_->name } grep { $_->serial } @columns;
+    my $mapping = $class->_get_column_mapping($target);
+
+    my $values = {};
+    $values->{ $mapping->{$_} } = $target->$_() for keys %$mapping;
+    delete $values->{$serial} if $serial;
+
+    my ( $stmt, @bind ) =
+      SQL::Abstract::Limit->new( limit_dialect => $dbh )
+      ->insert( $table, $values );
+
+    my $sth = $dbh->prepare($stmt);
+    my $rv  = $sth->execute(@bind);
+
+    $target->$serial( $dbh->last_insert_id )
+      if $values->{serial}
+      and $serial
+      and $rv > 0;
+
+    return 1 if $rv > 0;
+}
+
+sub _remove {
+    my ( $class, $target, $orig_where, $limit ) = @_;
+
+    my ( $dbh, $table ) = $class->_get_dbh_and_table($target);
+
+    my $mapping = $class->_get_column_mapping($target);
+    my $where = $class->_translate_query( $orig_where, $mapping );
+
+    my ( $stmt, @bind ) =
+      SQL::Abstract::Limit->new( limit_dialect => $dbh )
+      ->delete( $table, $where, $limit );
+
+    my $sth = $dbh->prepare($stmt);
+    my $rv  = $sth->execute(@bind);
+
+    return 1 if $rv > 0;
+}
+
+sub _remove_object {
+    my ( $class, $target ) = @_;
+
+    my $where = $class->_compute_primary_key($target);
+    $class->_remove( $target, $where, 1 );
+}
+
 sub _update {
-    my ( $class, $target, $orig_changes, $orig_where ) = @_;
+    my ( $class, $target, $orig_changes, $orig_where, $limit ) = @_;
 
     my ( $dbh, $table ) = $class->_get_dbh_and_table($target);
 
@@ -45,7 +98,7 @@ sub _update {
 
     my ( $stmt, @bind ) =
       SQL::Abstract::Limit->new( limit_dialect => $dbh )
-      ->update( $table, $changes, $where );
+      ->update( $table, $changes, $where, $limit );
 
     my $sth = $dbh->prepare($stmt);
     my $rv  = $sth->execute(@bind);
@@ -56,8 +109,34 @@ sub _update {
 sub _update_object {
     my ( $class, $target, $changes ) = @_;
 
+    $changes ||= $class->_compute_changes($target);
+    return 1 unless %$changes;
+
     my $where = $class->_compute_primary_key($target);
-    $class->_update( $target, $changes, $where );
+    my $rv = $class->_update( $target, $changes, $where, 1 );
+
+    if ($rv) {
+        my @columns = $class->_get_columns($target);
+        foreach ( grep { $_->_is_dirty } @columns ) {
+            $_->_is_dirty(undef);
+            $_->_original_value(undef);
+        }
+    }
+
+    return $rv;
+}
+
+sub _compute_changes {
+    my ( $class, $target ) = @_;
+
+    my @columns = $class->_get_columns( ref $target );
+    my $changes = {};
+
+    $changes->{$_} = $target->$_()
+      for map { $_->name }
+      grep    { $_->_is_dirty } @columns;
+
+    return $changes;
 }
 
 sub _compute_primary_key {
@@ -72,6 +151,7 @@ sub _compute_primary_key {
 
     my $where = {};
     $where->{$_} = $target->$_() for map { $_->name } @primary_key;
+
     return $where;
 }
 
@@ -134,8 +214,5 @@ sub _translate_order_by {
 
     return $order_by;
 }
-
-sub _remove        { ... }
-sub _remove_object { ... }
 
 1;

@@ -53,33 +53,27 @@ $dbh->{mock_session} = setup_session();
 
 Gideon::StoreRegistry->register( 'test', $dbh );
 
-# Test _update_object
+# Test _remove_object single objects
 {
     my $customer = Customer->new( id => 1, name => 'joe doe' );
-    ok( Gideon::DBI->_update_object( $customer, { id => 2 } ),
-        'update single instance' );
+    ok( Gideon::DBI->_remove_object($customer), 'remove single instance' );
 
     my $person = Person->new( first_name => 'John', last_name => 'Doe' );
-    ok( Gideon::DBI->_update_object( $person, { first_name => 'Joe' } ),
-        'update signle instance without primary key' );
-}
-
-# Test _update
-{
-    ok( Gideon::DBI->_update( 'Customer', { name => 'jack' } ),
-        'update all records' );
-}
-
-# Test _update with a where condition
-{
     ok(
-        Gideon::DBI->_update(
-            'Customer',
-            { name => 'jack' },
-            { name => 'joe' }
-        ),
-        'update all records that match a given where condition'
+        Gideon::DBI->_remove_object($person),
+        'remove signle instance without primary key'
     );
+}
+
+# Test _remove all
+{
+    ok( Gideon::DBI->_remove('Customer'), 'remove all records' );
+}
+
+# Test _remove with a where condition
+{
+    ok( Gideon::DBI->_remove( 'Customer', { name => 'jack' }, ),
+        'remove all records that match a given where condition' );
 }
 
 sub setup_session {
@@ -87,27 +81,26 @@ sub setup_session {
         test => (
             {
                 statement =>
-                  qr/UPDATE customer SET id = \? WHERE \( id = \? \)/sm,
+                  qr/DELETE FROM customer WHERE \( id = \? \)/sm,
                 results => [ ['rows'], [] ],
-                bound_params => [ 2, 1 ],
+                bound_params => [ 1 ],
             },
             {
                 statement =>
                   qr/WHERE \( \( first_name = \? AND last_name = \? \) \)/sm,
                 results => [ ['rows'], [] ],
-                bound_params => [ 'Joe', 'John', 'Doe' ],
+                bound_params => [ 'John', 'Doe' ],
             },
 
             {
-                statement    => qr/UPDATE customer SET alias = \?/,
+                statement    => qr/DELETE FROM customer/,
                 results      => [ ['rows'], [], [], [] ],
-                bound_params => [ 'jack', ],
             },
             {
                 statement =>
-                  qr/UPDATE customer SET alias = \? WHERE \( alias = \? \)/,
+                  qr/DELETE FROM customer WHERE \( alias = \? \)/,
                 results => [ ['rows'], [], [], [] ],
-                bound_params => [ 'jack', 'joe' ],
+                bound_params => [ 'jack' ],
             },
 
         )
