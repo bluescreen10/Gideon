@@ -2,6 +2,7 @@
 
     package TestClass;
     use Moose;
+    with 'Gideon::Meta::Class::Persisted::Trait';
 
     has id => ( is => 'rw', isa => 'Num' );
 
@@ -12,7 +13,7 @@ use MooseX::Test::Role;
 use Gideon::Driver;
 use Gideon::ResultSet;
 use Moose::Util qw(apply_all_roles);
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 # new object save
 {
@@ -25,7 +26,9 @@ use Test::More tests => 3;
         }
     );
 
-    $fake_driver->save( TestClass->new );
+    my $instance = TestClass->new;
+    $fake_driver->save($instance);
+    ok $instance->__is_persisted, 'persisted';
 }
 
 # existent object save
@@ -40,8 +43,8 @@ use Test::More tests => 3;
     );
 
     my $instance = TestClass->new;
-    apply_all_roles( $instance, 'Gideon::Meta::Class::Persisted::Trait' );
-    $fake_driver->save( $instance );
+    $instance->__is_persisted(1);
+    $fake_driver->save($instance);
 }
 
 # class save

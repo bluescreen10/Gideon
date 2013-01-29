@@ -1,7 +1,16 @@
+{
+
+    package TestClass;
+    use Moose;
+    with 'Gideon::Meta::Class::Persisted::Trait';
+
+    __PACKAGE__->meta->make_immutable;
+}
+
 use MooseX::Test::Role;
 use Gideon::Driver;
 use Gideon::ResultSet;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 # Object remove
 {
@@ -14,7 +23,10 @@ use Test::More tests => 4;
         }
     );
 
-    $fake_driver->remove( bless( {}, 'TestClass' ) );
+    my $instance = TestClass->new;
+    $instance->__is_persisted(1);
+    $fake_driver->remove($instance);
+    ok !$instance->__is_persisted, 'Instance is no more persisted';
 }
 
 # Class update

@@ -8,7 +8,8 @@ use Moose::Exporter;
 my ($import) = Moose::Exporter->build_import_methods(
     class_metaroles => { class => ['Gideon::Meta::Class'] },
     also            => ['Moose'],
-    install => [ 'unimport', 'init_meta' ],
+    install          => [ 'unimport', 'init_meta' ],
+    base_class_roles => ['Gideon::Meta::Class::Persisted::Trait'],
 );
 
 sub import {
@@ -16,17 +17,17 @@ sub import {
 
     if ( $args{driver} ) {
 
-        my $driver_class = "Gideon::$args{driver}";
-        eval "use $driver_class";
+        my $driver = "Gideon::$args{driver}";
+        eval "use $driver";
         die "Can't load driver $args{driver}: $@" if $@;
 
         my $target = caller;
         no strict 'refs';
-        *{ $target . "::find" }     = sub { $driver_class->find(@_) };
-        *{ $target . "::find_one" } = sub { $driver_class->find_one(@_) };
-        *{ $target . "::update" }   = sub { $driver_class->update(@_) };
-        *{ $target . "::remove" }   = sub { $driver_class->remove(@_) };
-        *{ $target . "::save" }     = sub { $driver_class->save(@_) };
+        *{ $target . "::find" }     = sub { $driver->find(@_) };
+        *{ $target . "::find_one" } = sub { $driver->find_one(@_) };
+        *{ $target . "::update" }   = sub { $driver->update(@_) };
+        *{ $target . "::remove" }   = sub { $driver->remove(@_) };
+        *{ $target . "::save" }     = sub { $driver->save(@_) };
         use strict 'refs';
     }
 

@@ -54,12 +54,21 @@ sub _insert_object {
     my $sth = $dbh->prepare($stmt);
     my $rv  = $sth->execute(@bind);
 
-    $target->$serial( $dbh->last_insert_id )
-      if $values->{serial}
-      and $serial
-      and $rv > 0;
+    if ( $rv > 0 ) {
+        my @columns = $class->_get_columns($target);
 
-    return 1 if $rv > 0;
+        foreach ( grep { $_->_is_dirty } @columns ) {
+            $_->_is_dirty(undef);
+            $_->_original_value(undef);
+        }
+
+        if ( $serial and not defined $values->{$serial} ) {
+            $target->$serial(
+                $dbh->last_insert_id( undef, undef, $table, $serial ) );
+        }
+    }
+
+    return 1 if $rv > 0; 
 }
 
 sub _remove {

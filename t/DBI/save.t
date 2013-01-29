@@ -30,13 +30,13 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Gideon::StoreRegistry;
 use DBI;
 
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session}         = setup_session();
-$dbh->{mock_start_insert_id} = 1;
+$dbh->{mock_start_insert_id} = 11;
 
 Gideon::StoreRegistry->register( 'test', $dbh );
 
@@ -52,7 +52,8 @@ Gideon::StoreRegistry->register( 'test', $dbh );
 # test _insert_object
 {
     my $customer = Customer->new( name => 'joe doe', age => 41 );
-    ok( Gideon::DBI->_insert_object($customer) );
+    ok( Gideon::DBI->_insert_object($customer), 'insert object' );
+    is $customer->id, 11, 'serial value seeting';
 }
 
 sub setup_session {

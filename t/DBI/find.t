@@ -21,6 +21,7 @@ use warnings;
 use Test::More tests => 6;
 use Gideon::StoreRegistry;
 use DBI;
+use JSON qw(-convert_blessed_universally);
 
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session} = setup_session();

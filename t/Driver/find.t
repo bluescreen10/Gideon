@@ -1,6 +1,8 @@
 {
+
     package TestClass;
     use Moose;
+    with 'Gideon::Meta::Class::Persisted::Trait';
 
     __PACKAGE__->meta->make_immutable;
 }
@@ -37,7 +39,6 @@ use Test::More tests => 11;
     my $fake_driver =
       consumer_of( 'Gideon::Driver', _find => sub { ok 0, $test_name } );
 
-
     my $rs = $fake_driver->find( 'TestClass', id => 1, -order => ['id'] );
 
     is $rs->target, 'TestClass', $test_name;
@@ -56,6 +57,7 @@ use Test::More tests => 11;
             is $_[4], 1,           $test_name;
             is_deeply $_[3], { asc => 'id' }, $test_name;
             is_deeply $_[2], { name => { like => 'john' } }, $test_name;
+            return ( TestClass->new );
         }
     );
 
