@@ -2,6 +2,7 @@ package Gideon;
 
 use Moose;
 use Moose::Exporter;
+use Gideon::Meta::Class::Trait::Persisted;
 
 #ABSTRACT: DataMapper between storage and Moose objects
 
@@ -9,7 +10,7 @@ my ($import) = Moose::Exporter->build_import_methods(
     class_metaroles => { class => ['Gideon::Meta::Class'] },
     also            => ['Moose'],
     install          => [ 'unimport', 'init_meta' ],
-    base_class_roles => ['Gideon::Meta::Class::Persisted::Trait'],
+    base_class_roles => ['Gideon::Meta::Class::Trait::Persisted'],
 );
 
 sub import {

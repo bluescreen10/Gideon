@@ -2,7 +2,7 @@
 
     package TestClass;
     use Moose;
-    with 'Gideon::Meta::Class::Persisted::Trait';
+    with 'Gideon::Meta::Class::Trait::Persisted';
 
     has id => ( is => 'rw', isa => 'Num' );
 

@@ -45,13 +45,13 @@
 use strict;
 use warnings;
 use Test::More tests => 4;
-use Gideon::StoreRegistry;
+use Gideon::Registry;
 use DBI;
 
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session} = setup_session();
 
-Gideon::StoreRegistry->register( 'test', $dbh );
+Gideon::Registry->register_store( 'test', $dbh );
 
 # Test _remove_object single objects
 {

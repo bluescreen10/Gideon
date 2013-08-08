@@ -1,7 +1,6 @@
 package Gideon::DBI;
 use Moose;
-
-use Gideon::Meta::Attribute::DBI::Column;
+use Gideon::Meta::Attribute::Trait::DBI::Column;
 use SQL::Abstract::Limit;
 
 with 'Gideon::Driver';
@@ -57,18 +56,13 @@ sub _insert_object {
     if ( $rv > 0 ) {
         my @columns = $class->_get_columns($target);
 
-        foreach ( grep { $_->_is_dirty } @columns ) {
-            $_->_is_dirty(undef);
-            $_->_original_value(undef);
-        }
-
         if ( $serial and not defined $values->{$serial} ) {
             $target->$serial(
                 $dbh->last_insert_id( undef, undef, $table, $serial ) );
         }
     }
 
-    return 1 if $rv > 0; 
+    return 1 if $rv > 0;
 }
 
 sub _remove {
@@ -126,10 +120,6 @@ sub _update_object {
 
     if ($rv) {
         my @columns = $class->_get_columns($target);
-        foreach ( grep { $_->_is_dirty } @columns ) {
-            $_->_is_dirty(undef);
-            $_->_original_value(undef);
-        }
     }
 
     return $rv;
@@ -141,9 +131,7 @@ sub _compute_changes {
     my @columns = $class->_get_columns( ref $target );
     my $changes = {};
 
-    $changes->{$_} = $target->$_()
-      for map { $_->name }
-      grep    { $_->_is_dirty } @columns;
+    $changes->{$_} = $target->$_() for map { $_->name } @columns;
 
     return $changes;
 }
@@ -168,7 +156,7 @@ sub _get_dbh_and_table {
     my ( $class, $target ) = @_;
 
     my ( $store, $table ) = split ':', $target->meta->store;
-    my $dbh = Gideon::StoreRegistry->store($store);
+    my $dbh = Gideon::Registry->get_store($store);
 
     return ( $dbh, $table );
 }
@@ -177,7 +165,7 @@ sub _get_columns {
     my ( $class, $target ) = @_;
 
     return
-      grep { $_->does('Gideon::Meta::Attribute::DBI::Column') }
+      grep { $_->does('Gideon::Meta::Attribute::Trait::DBI::Column') }
       $target->meta->get_all_attributes;
 }
 

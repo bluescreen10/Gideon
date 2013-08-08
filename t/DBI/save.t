@@ -30,15 +30,15 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
-use Gideon::StoreRegistry;
+use Test::More tests => 3;
+use Gideon::Registry;
 use DBI;
 
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session}         = setup_session();
 $dbh->{mock_start_insert_id} = 11;
 
-Gideon::StoreRegistry->register( 'test', $dbh );
+Gideon::Registry->register_store( 'test', $dbh );
 
 # Test _update_object
 {
@@ -46,7 +46,6 @@ Gideon::StoreRegistry->register( 'test', $dbh );
     $customer->name('jack bauer');
     $customer->age(54);
     ok( Gideon::DBI->_update_object($customer), 'update single instance' );
-    ok( Gideon::DBI->_update_object($customer), 'clean object' );
 }
 
 # test _insert_object
@@ -60,9 +59,10 @@ sub setup_session {
     DBD::Mock::Session->new(
         test => (
             {
-                statement => qr/SET age = \?, alias = \? WHERE \( id = \? \)/,
-                results   => [ ['rows'], [] ],
-                bound_params => [ 54, 'jack bauer', 1 ],
+                statement =>
+                  qr/SET age = \?, alias = \?, id = \? WHERE \( id = \? \)/,
+                results => [ ['rows'], [] ],
+                bound_params => [ 54, 'jack bauer', 1, 1 ],
             },
             {
                 statement =>

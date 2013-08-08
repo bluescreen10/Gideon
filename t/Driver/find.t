@@ -2,7 +2,7 @@
 
     package TestClass;
     use Moose;
-    with 'Gideon::Meta::Class::Persisted::Trait';
+    with 'Gideon::Meta::Class::Trait::Persisted';
 
     __PACKAGE__->meta->make_immutable;
 }

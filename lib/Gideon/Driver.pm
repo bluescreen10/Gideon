@@ -1,21 +1,37 @@
 package Gideon::Driver;
 use Moose::Role;
-
-use Moose::Util qw(apply_all_roles);
 use Gideon::ResultSet;
-use Gideon::StoreRegistry;
-use Gideon::Meta::Class::Persisted::Trait;
+use Gideon::Registry;
+use Gideon::Util;
+use Moose::Util qw(apply_all_roles);
 
 requires qw(_find _update _update_object _remove _remove_object _insert_object);
 
 sub find {
     my ( $driver, $target, %query ) = @_;
 
-    my $order = delete $query{-order};
+    my $cache_for = delete $query{-cache_for};
 
     if (wantarray) {
+        my $key;
+        my $cache;
+
+        if ( Gideon::Registry->has_cache and $cache_for ) {
+            $key = Gideon::Util::serialize_key( $target, \%query );
+            $cache = Gideon::Registry->get_cache;
+
+            my $rs = $cache->get($key);
+            return @$rs if $rs;
+        }
+
+        my $order = delete $query{-order};
         my @rs = $driver->_find( $target, \%query, $order );
         $_->__is_persisted(1) for @rs;
+
+        if ( Gideon::Registry->has_cache and $cache_for ) {
+            $cache->set( $key, \@rs, $cache_for );
+        }
+
         return @rs;
     }
 
@@ -23,7 +39,7 @@ sub find {
         return Gideon::ResultSet->new(
             target => $target,
             query  => \%query,
-            order  => $order
+            order  => delete $query{-order},
         );
     }
 }
@@ -73,7 +89,7 @@ sub remove {
 
     elsif ( ref $target ) {
         my $rv = $driver->_remove_object($target);
-        $target->__is_persisted(undef);
+        $target->__is_persisted(undef) if $rv;
         return $rv;
     }
 
