@@ -1,3 +1,9 @@
+use strict;
+use warnings;
+use DBI;
+use Gideon::Registry;
+use Test::More tests => 4;
+
 {
 
     package Customer;
@@ -42,44 +48,31 @@
     __PACKAGE__->meta->make_immutable;
 }
 
-use strict;
-use warnings;
-use Test::More tests => 4;
-use Gideon::Registry;
-use DBI;
-
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session} = setup_session();
 
 Gideon::Registry->register_store( 'test', $dbh );
+my $driver = Gideon::Driver::DBI->new;
 
 # Test _update_object
 {
     my $customer = Customer->new( id => 1, name => 'joe doe' );
-    ok( Gideon::DBI->_update_object( $customer, { id => 2 } ),
-        'update single instance' );
+    ok $driver->_update_object( $customer, { id => 2 } ), 'update object';
 
     my $person = Person->new( first_name => 'John', last_name => 'Doe' );
-    ok( Gideon::DBI->_update_object( $person, { first_name => 'Joe' } ),
-        'update signle instance without primary key' );
+    ok $driver->_update_object( $person, { first_name => 'Joe' } ),
+      'update object w/o primary key';
 }
 
 # Test _update
 {
-    ok( Gideon::DBI->_update( 'Customer', { name => 'jack' } ),
-        'update all records' );
+    ok $driver->_update( 'Customer', { name => 'jack' } ), 'update all records';
 }
 
 # Test _update with a where condition
 {
-    ok(
-        Gideon::DBI->_update(
-            'Customer',
-            { name => 'jack' },
-            { name => 'joe' }
-        ),
-        'update all records that match a given where condition'
-    );
+    ok $driver->_update( 'Customer', { name => 'jack' }, { name => 'joe' } ),
+      'update all records that match a given where condition';
 }
 
 sub setup_session {
@@ -113,4 +106,3 @@ sub setup_session {
         )
     );
 }
-

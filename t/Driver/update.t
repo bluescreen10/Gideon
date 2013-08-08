@@ -1,3 +1,9 @@
+use strict;
+use warnings;
+use MooseX::Test::Role;
+use Gideon::Driver;
+use Test::More tests => 4;
+
 {
 
     package TestClass;
@@ -7,11 +13,6 @@
 
     __PACKAGE__->meta->make_immutable;
 }
-
-use MooseX::Test::Role;
-use Gideon::Driver;
-use Gideon::ResultSet;
-use Test::More tests => 7;
 
 # Object update
 {
@@ -41,25 +42,4 @@ use Test::More tests => 7;
     );
 
     $fake_driver->update( 'TestClass', name => 'charles' );
-}
-
-# ResultSet update
-{
-    my $test_name   = 'ResultSet dispatched correctly';
-    my $fake_driver = consumer_of(
-        'Gideon::Driver',
-        _update_object => sub { ok 0, $test_name },
-        _update        => sub {
-            is $_[1], 'TestClass', $test_name;
-            is_deeply $_[2], { country => 'US' }, 'ResultSet updates';
-            is_deeply $_[3], { id      => 1 },    'ResultSet where';
-        }
-    );
-
-    my $rs = Gideon::ResultSet->new(
-        target => 'TestClass',
-        query  => { id => 1, -order => { desc => 'name' } }
-    );
-
-    $fake_driver->update( $rs, country => 'US' );
 }

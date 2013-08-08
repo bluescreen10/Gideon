@@ -1,3 +1,9 @@
+use strict;
+use warnings;
+use DBI;
+use Gideon::Registry;
+use Test::More tests => 2;
+
 {
 
     package Customer;
@@ -28,42 +34,23 @@
     __PACKAGE__->meta->make_immutable;
 }
 
-use strict;
-use warnings;
-use Test::More tests => 3;
-use Gideon::Registry;
-use DBI;
-
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session}         = setup_session();
 $dbh->{mock_start_insert_id} = 11;
 
 Gideon::Registry->register_store( 'test', $dbh );
-
-# Test _update_object
-{
-    my $customer = Customer->new( id => 1, name => 'joe doe', age => 41 );
-    $customer->name('jack bauer');
-    $customer->age(54);
-    ok( Gideon::DBI->_update_object($customer), 'update single instance' );
-}
+my $driver = Gideon::Driver::DBI->new;
 
 # test _insert_object
 {
     my $customer = Customer->new( name => 'joe doe', age => 41 );
-    ok( Gideon::DBI->_insert_object($customer), 'insert object' );
+    ok $driver->_insert_object($customer), 'insert object';
     is $customer->id, 11, 'serial value seeting';
 }
 
 sub setup_session {
     DBD::Mock::Session->new(
         test => (
-            {
-                statement =>
-                  qr/SET age = \?, alias = \?, id = \? WHERE \( id = \? \)/,
-                results => [ ['rows'], [] ],
-                bound_params => [ 54, 'jack bauer', 1, 1 ],
-            },
             {
                 statement =>
                   qr/INSERT INTO customer \( age, alias\) VALUES \( \?, \? \)/,

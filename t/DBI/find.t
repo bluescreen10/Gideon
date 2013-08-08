@@ -1,3 +1,9 @@
+use strict;
+use warnings;
+use DBI;
+use Gideon::Registry;
+use Test::More tests => 6;
+
 {
 
     package Customer;
@@ -16,13 +22,6 @@
     __PACKAGE__->meta->make_immutable;
 }
 
-use strict;
-use warnings;
-use Test::More tests => 6;
-use Gideon::Registry;
-use DBI;
-use JSON qw(-convert_blessed_universally);
-
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session} = setup_session();
 
@@ -30,7 +29,8 @@ Gideon::Registry->register_store( 'test', $dbh );
 
 # Test find_first
 {
-    my @customers = Gideon::DBI->_find( 'Customer', { id => 1 }, undef, 1 );
+    my @customers =
+      Gideon::Driver::DBI->_find( 'Customer', { id => 1 }, undef, 1 );
 
     is scalar @customers, 1, 'Only one customer';
     is $customers[0]->id,   1,         'id is correct';
@@ -39,7 +39,7 @@ Gideon::Registry->register_store( 'test', $dbh );
 
 # Test find in array context
 {
-    my @customers = Gideon::DBI->_find( 'Customer', undef, ['id'] );
+    my @customers = Gideon::Driver::DBI->_find( 'Customer', undef, ['id'] );
 
     is scalar @customers, 2, 'Has two customers';
     is $customers[0]->name, 'joe doe',    'First result\'s name';
@@ -61,4 +61,3 @@ sub setup_session {
         )
     );
 }
-

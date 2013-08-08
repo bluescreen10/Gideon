@@ -1,8 +1,10 @@
 package Gideon;
-
 use Moose;
 use Moose::Exporter;
+use Gideon::Plugin::Cache;
+use Gideon::Plugin::ResultSet;
 use Gideon::Meta::Class::Trait::Persisted;
+use Carp qw(croak);
 
 #ABSTRACT: DataMapper between storage and Moose objects
 
@@ -18,17 +20,21 @@ sub import {
 
     if ( $args{driver} ) {
 
-        my $driver = "Gideon::$args{driver}";
-        eval "use $driver";
-        die "Can't load driver $args{driver}: $@" if $@;
+        my $driver = "Gideon::Driver::$args{driver}";
+        eval "require $driver";
+        croak "Can't load driver $args{driver}: $@" if $@;
+
+        my $chain =
+          Gideon::Plugin::ResultSet->new(
+            next => Gideon::Plugin::Cache->new( next => $driver->new ) );
 
         my $target = caller;
         no strict 'refs';
-        *{ $target . "::find" }     = sub { $driver->find(@_) };
-        *{ $target . "::find_one" } = sub { $driver->find_one(@_) };
-        *{ $target . "::update" }   = sub { $driver->update(@_) };
-        *{ $target . "::remove" }   = sub { $driver->remove(@_) };
-        *{ $target . "::save" }     = sub { $driver->save(@_) };
+        *{ $target . "::find" }     = sub { $chain->find(@_) };
+        *{ $target . "::find_one" } = sub { $chain->find_one(@_) };
+        *{ $target . "::update" }   = sub { $chain->update(@_) };
+        *{ $target . "::remove" }   = sub { $chain->remove(@_) };
+        *{ $target . "::save" }     = sub { $chain->save(@_) };
         use strict 'refs';
     }
 

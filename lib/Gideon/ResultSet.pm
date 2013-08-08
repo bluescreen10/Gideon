@@ -1,14 +1,14 @@
 package Gideon::ResultSet;
-
 use Moose;
 use overload
   '@{}'    => sub { $_[0]->elements },
   fallback => 1;
 
+has driver => ( is => 'ro', required => 1 );
+has target => ( is => 'ro', required => 1 );
+has query  => ( is => 'ro' );
+has order  => ( is => 'ro' );
 has elements => ( is => 'ro', builder => '_build_elements', lazy => 1 );
-has target   => ( is => 'ro' );
-has query    => ( is => 'ro' );
-has order    => ( is => 'ro' );
 
 sub size {
     my $self = shift;
@@ -17,7 +17,7 @@ sub size {
 
 sub _build_elements {
     my $self     = shift;
-    my @elements = $self->target->find( %{$self->query} );
+    my @elements = $self->driver->find( %{ $self->query } );
     return \@elements;
 }
 
@@ -25,10 +25,7 @@ sub find {
     my ( $self, %query ) = @_;
 
     my $new_query = $self->_combine_query( \%query );
-
-    wantarray
-      ? $self->target->find($new_query)
-      : $self->new( target => $self->target, query => $new_query );
+    return $self->driver->find( $self->target, %$new_query );
 }
 
 sub _combine_query {

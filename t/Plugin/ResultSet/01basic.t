@@ -2,9 +2,15 @@ use strict;
 use warnings;
 use Test::More;
 use Gideon::ResultSet;
+use Gideon::Plugin::ResultSet;
 
-my $set =
-  Gideon::ResultSet->new( class => undef, query => { id => { '!=' => 1 } } );
+my $driver = Gideon::Plugin::ResultSet->new( next => undef );
+
+my $set = Gideon::ResultSet->new(
+    driver => $driver,
+    target => undef,
+    query  => { id => { '!=' => 1 } }
+);
 
 is_deeply $set->query, { id => { '!=' => 1 } }, 'Set initialized ok';
 

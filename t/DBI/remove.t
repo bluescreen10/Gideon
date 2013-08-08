@@ -46,44 +46,42 @@ use strict;
 use warnings;
 use Test::More tests => 4;
 use Gideon::Registry;
+use Gideon::Driver::DBI;
 use DBI;
 
 my $dbh = DBI->connect( 'dbi:Mock:', undef, undef, { RaiseError => 1 } );
 $dbh->{mock_session} = setup_session();
 
 Gideon::Registry->register_store( 'test', $dbh );
+my $driver = Gideon::Driver::DBI->new;
 
 # Test _remove_object single objects
 {
     my $customer = Customer->new( id => 1, name => 'joe doe' );
-    ok( Gideon::DBI->_remove_object($customer), 'remove single instance' );
+    ok $driver->_remove_object($customer), 'remove object';
 
     my $person = Person->new( first_name => 'John', last_name => 'Doe' );
-    ok(
-        Gideon::DBI->_remove_object($person),
-        'remove signle instance without primary key'
-    );
+    ok $driver->_remove_object($person), 'remove object without primary key';
 }
 
 # Test _remove all
 {
-    ok( Gideon::DBI->_remove('Customer'), 'remove all records' );
+    ok $driver->_remove('Customer'), 'remove all records';
 }
 
 # Test _remove with a where condition
 {
-    ok( Gideon::DBI->_remove( 'Customer', { name => 'jack' }, ),
-        'remove all records that match a given where condition' );
+    ok $driver->_remove( 'Customer', { name => 'jack' } ),
+      'remove all records with where';
 }
 
 sub setup_session {
     DBD::Mock::Session->new(
         test => (
             {
-                statement =>
-                  qr/DELETE FROM customer WHERE \( id = \? \)/sm,
-                results => [ ['rows'], [] ],
-                bound_params => [ 1 ],
+                statement    => qr/DELETE FROM customer WHERE \( id = \? \)/sm,
+                results      => [ ['rows'], [] ],
+                bound_params => [1],
             },
             {
                 statement =>
@@ -93,14 +91,13 @@ sub setup_session {
             },
 
             {
-                statement    => qr/DELETE FROM customer/,
-                results      => [ ['rows'], [], [], [] ],
+                statement => qr/DELETE FROM customer/,
+                results   => [ ['rows'], [], [], [] ],
             },
             {
-                statement =>
-                  qr/DELETE FROM customer WHERE \( alias = \? \)/,
-                results => [ ['rows'], [], [], [] ],
-                bound_params => [ 'jack' ],
+                statement    => qr/DELETE FROM customer WHERE \( alias = \? \)/,
+                results      => [ ['rows'], [], [], [] ],
+                bound_params => ['jack'],
             },
 
         )

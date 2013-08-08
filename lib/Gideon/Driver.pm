@@ -1,8 +1,5 @@
 package Gideon::Driver;
 use Moose::Role;
-use Gideon::ResultSet;
-use Gideon::Registry;
-use Gideon::Util;
 use Moose::Util qw(apply_all_roles);
 
 requires qw(_find _update _update_object _remove _remove_object _insert_object);
@@ -10,38 +7,10 @@ requires qw(_find _update _update_object _remove _remove_object _insert_object);
 sub find {
     my ( $driver, $target, %query ) = @_;
 
-    my $cache_for = delete $query{-cache_for};
-
-    if (wantarray) {
-        my $key;
-        my $cache;
-
-        if ( Gideon::Registry->has_cache and $cache_for ) {
-            $key = Gideon::Util::serialize_key( $target, \%query );
-            $cache = Gideon::Registry->get_cache;
-
-            my $rs = $cache->get($key);
-            return @$rs if $rs;
-        }
-
-        my $order = delete $query{-order};
-        my @rs = $driver->_find( $target, \%query, $order );
-        $_->__is_persisted(1) for @rs;
-
-        if ( Gideon::Registry->has_cache and $cache_for ) {
-            $cache->set( $key, \@rs, $cache_for );
-        }
-
-        return @rs;
-    }
-
-    else {
-        return Gideon::ResultSet->new(
-            target => $target,
-            query  => \%query,
-            order  => delete $query{-order},
-        );
-    }
+    my $order = delete $query{-order};
+    my @rs = $driver->_find( $target, \%query, $order );
+    $_->__is_persisted(1) for @rs;
+    return \@rs;
 }
 
 sub find_one {
