@@ -1,6 +1,5 @@
 package Gideon::Driver;
 use Moose::Role;
-use Moose::Util qw(apply_all_roles);
 
 requires qw(_find _update _update_object _remove _remove_object _insert_object);
 
