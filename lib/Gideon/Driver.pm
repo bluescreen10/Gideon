@@ -8,30 +8,20 @@ sub find {
     my ( $driver, $target, %query ) = @_;
 
     my $order = delete $query{-order};
-    my @rs = $driver->_find( $target, \%query, $order );
-    $_->__is_persisted(1) for @rs;
-    return \@rs;
+    $driver->_find( $target, \%query, $order );
 }
 
 sub find_one {
     my ( $driver, $target, %query ) = @_;
 
     my $order = delete $query{-order};
-    my ($instance) = $driver->_find( $target, \%query, $order, 1 );
-    $instance->__is_persisted(1);
-    return $instance;
+    $driver->_find( $target, \%query, $order, 1 )->[0];
 }
 
 sub update {
     my ( $driver, $target, %changes ) = @_;
 
-    if ( ref $target eq 'Gideon::ResultSet' ) {
-        my $query = $target->query;
-        delete $query->{-order};
-        $driver->_update( $target->target, \%changes, $query );
-    }
-
-    elsif ( ref $target ) {
+    if ( ref $target ) {
         my $rv = $driver->_update_object( $target, \%changes );
 
         if ($rv) {
@@ -50,13 +40,7 @@ sub update {
 sub remove {
     my ( $driver, $target ) = @_;
 
-    if ( ref $target eq 'Gideon::ResultSet' ) {
-        my $query = $target->query;
-        delete $query->{-order};
-        $driver->_remove( $target->target, $query );
-    }
-
-    elsif ( ref $target ) {
+    if ( ref $target ) {
         my $rv = $driver->_remove_object($target);
         $target->__is_persisted(undef) if $rv;
         return $rv;
@@ -71,7 +55,6 @@ sub save {
     my ( $class, $target ) = @_;
 
     die unless ref $target;
-    die if ref $target eq 'Gideon::ResultSet';
 
     if ( $target->__is_persisted ) {
         $class->_update_object($target);

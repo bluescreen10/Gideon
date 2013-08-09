@@ -22,7 +22,7 @@ use Test::More tests => 7;
             is $_[1], 'TestClass', $test_name;
             is_deeply $_[2], { id   => 1 },    $test_name;
             is_deeply $_[3], { desc => 'id' }, $test_name;
-            return TestClass->new;
+            return [ TestClass->new ];
         }
     );
 
@@ -43,7 +43,7 @@ use Test::More tests => 7;
             is $_[4], 1,           $test_name;
             is_deeply $_[3], { asc => 'id' }, $test_name;
             is_deeply $_[2], { name => { like => 'john' } }, $test_name;
-            return TestClass->new;
+            return [ TestClass->new ];
         }
     );
 

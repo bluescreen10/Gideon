@@ -12,12 +12,10 @@ sub find {
         return @$rs;
     }
     else {
-        my $order = delete $query{-order};
         return Gideon::ResultSet->new(
             driver => $self,
             target => $target,
             query  => \%query,
-            order  => $order
         );
     }
 }

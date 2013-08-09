@@ -30,7 +30,7 @@ sub _find {
         push @instances, $target->new(%$data);
     }
 
-    return @instances;
+    return \@instances;
 }
 
 sub _insert_object {

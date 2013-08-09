@@ -29,21 +29,21 @@ Gideon::Registry->register_store( 'test', $dbh );
 
 # Test find_first
 {
-    my @customers =
+    my $customers =
       Gideon::Driver::DBI->_find( 'Customer', { id => 1 }, undef, 1 );
 
-    is scalar @customers, 1, 'Only one customer';
-    is $customers[0]->id,   1,         'id is correct';
-    is $customers[0]->name, 'joe doe', 'name is correct';
+    is scalar @$customers, 1, 'Only one customer';
+    is $customers->[0]->id,   1,         'id is correct';
+    is $customers->[0]->name, 'joe doe', 'name is correct';
 }
 
 # Test find in array context
 {
-    my @customers = Gideon::Driver::DBI->_find( 'Customer', undef, ['id'] );
+    my $customers = Gideon::Driver::DBI->_find( 'Customer', undef, ['id'] );
 
-    is scalar @customers, 2, 'Has two customers';
-    is $customers[0]->name, 'joe doe',    'First result\'s name';
-    is $customers[1]->name, 'jack bauer', 'Second result\'s name';
+    is scalar @$customers, 2, 'Has two customers';
+    is $customers->[0]->name, 'joe doe',    'First result\'s name';
+    is $customers->[1]->name, 'jack bauer', 'Second result\'s name';
 }
 
 sub setup_session {

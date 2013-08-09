@@ -7,7 +7,6 @@ use overload
 has driver => ( is => 'ro', required => 1 );
 has target => ( is => 'ro', required => 1 );
 has query  => ( is => 'ro' );
-has order  => ( is => 'ro' );
 has elements => ( is => 'ro', builder => '_build_elements', lazy => 1 );
 
 sub size {
