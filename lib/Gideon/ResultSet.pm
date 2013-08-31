@@ -23,8 +23,11 @@ sub _build_elements {
 sub find {
     my ( $self, %query ) = @_;
 
-    my $new_query = $self->_combine_query( \%query );
-    return $self->driver->find( $self->target, %$new_query );
+    return $self->new(
+        driver => $self->driver,
+        target => $self->target,
+        query  => $self->_combine_query( \%query )
+    );
 }
 
 sub _combine_query {

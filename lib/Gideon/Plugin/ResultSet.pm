@@ -13,7 +13,7 @@ sub find {
     }
     else {
         return Gideon::ResultSet->new(
-            driver => $self,
+            driver => $self->next,
             target => $target,
             query  => \%query,
         );
