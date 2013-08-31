@@ -57,10 +57,18 @@ my $driver = Gideon::Driver::DBI->new;
 
 # Test _remove_object single objects
 {
-    my $customer = Customer->new( id => 1, name => 'joe doe' );
+    my $customer = Customer->new(
+        id             => 1,
+        name           => 'joe doe',
+        __is_persisted => 1
+    );
     ok $driver->_remove_object($customer), 'remove object';
 
-    my $person = Person->new( first_name => 'John', last_name => 'Doe' );
+    my $person = Person->new(
+        first_name    => 'John',
+        last_name     => 'Doe',
+        __is_persisted => 1
+    );
     ok $driver->_remove_object($person), 'remove object without primary key';
 }
 

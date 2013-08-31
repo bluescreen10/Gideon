@@ -56,10 +56,18 @@ my $driver = Gideon::Driver::DBI->new;
 
 # Test _update_object
 {
-    my $customer = Customer->new( id => 1, name => 'joe doe' );
+    my $customer = Customer->new(
+        id             => 1,
+        name           => 'joe doe',
+        __is_persisted => 1
+    );
     ok $driver->_update_object( $customer, { id => 2 } ), 'update object';
 
-    my $person = Person->new( first_name => 'John', last_name => 'Doe' );
+    my $person = Person->new(
+        first_name     => 'John',
+        last_name      => 'Doe',
+        __is_persisted => 1
+    );
     ok $driver->_update_object( $person, { first_name => 'Joe' } ),
       'update object w/o primary key';
 }

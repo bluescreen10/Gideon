@@ -1,5 +1,6 @@
 package Author;
 use Gideon driver => 'DBI';
+use DateTime;
 
 has id => (
     is          => 'rw',
@@ -15,12 +16,19 @@ has name => (
     traits => ['Gideon::DBI::Column']
 );
 
-has books => (
+has created_at => (
     is      => 'rw',
-    isa     => 'ArrayRef[Book]',
-    through => 'BookAuthor',
-    traits  => ['Gideon::Relationship']
+    isa     => 'DateTime',
+    default => sub { DateTime->now },
+    traits => [ 'Gideon::DBI::Column', 'Gideon::DBI::Inflate::DateTime' ],
 );
+
+# has books => (
+#     is      => 'rw',
+#     isa     => 'ArrayRef[Book]',
+#     through => 'BookAuthor',
+#     traits  => ['Gideon::Relationship']
+# );
 
 __PACKAGE__->meta->store("test:author");
 __PACKAGE__->meta->make_immutable;

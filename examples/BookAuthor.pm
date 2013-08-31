@@ -19,6 +19,13 @@ has book_id => (
     traits => ['Gideon::DBI::Column']
 );
 
+has created_at => (
+    is      => 'rw',
+    isa     => 'DateTime',
+    default => sub { DateTime->now },
+    traits  => ['Gideon::DBI::Column'],
+);
+
 __PACKAGE__->meta->store("test:book_author");
 __PACKAGE__->meta->make_immutable;
 1;

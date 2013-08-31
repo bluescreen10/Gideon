@@ -1,5 +1,6 @@
 package Gideon::Driver;
 use Moose::Role;
+use Gideon::Exceptions;
 
 requires qw(_find _update _update_object _remove _remove_object _insert_object);
 
@@ -20,51 +21,48 @@ sub find_one {
 sub update {
     my ( $driver, $target, %changes ) = @_;
 
-    if ( ref $target ) {
-        my $rv = $driver->_update_object( $target, \%changes );
+    my $is_object = ref $target;
 
-        if ($rv) {
-            $target->$_( $changes{$_} ) for keys %changes;
+    Gideon::Exception::ObjectNotInStore->throw
+      if $is_object and not $target->__is_persisted;
 
-        }
+    my $result =
+        $is_object
+      ? $driver->_update_object( $target, \%changes )
+      : $driver->_update( $target, \%changes, {} );
 
-        return $rv;
-    }
-
-    else {
-        $driver->_update( $target, \%changes, {} );
-    }
+    return $target if $result;
 }
 
 sub remove {
-    my ( $driver, $target ) = @_;
+    my ( $driver, $target, %query ) = @_;
 
-    if ( ref $target ) {
-        my $rv = $driver->_remove_object($target);
-        $target->__is_persisted(undef) if $rv;
-        return $rv;
-    }
+    my $is_object = ref $target;
 
-    else {
-        $driver->_remove( $target, {} );
-    }
+    Gideon::Exception::ObjectNotInStore->throw
+      if $is_object and not $target->__is_persisted;
+
+    my $result =
+        $is_object
+      ? $driver->_remove_object($target)
+      : $driver->_remove( $target, \%query );
+
+    return $target if $result;
 }
 
 sub save {
     my ( $class, $target ) = @_;
 
-    die unless ref $target;
+    my $is_object = ref $target;
 
-    if ( $target->__is_persisted ) {
-        $class->_update_object($target);
-    }
+    Gideon::Exception::InvalidOperation->throw unless $is_object;
 
-    else {
-        if ( my $rv = $class->_insert_object($target) ) {
-            $target->__is_persisted(1);
-            return $rv;
-        }
-    }
+    my $result =
+        $target->__is_persisted
+      ? $class->_update_object($target)
+      : $class->_insert_object($target);
+
+    return $target if $result;
 }
 
 1;

@@ -1,6 +1,8 @@
 package Gideon::Driver::DBI;
 use Moose;
 use Gideon::Meta::Attribute::Trait::DBI::Column;
+use Gideon::Meta::Attribute::Trait::Inflate;
+use Gideon::Meta::Attribute::Trait::DBI::Inflate::DateTime;
 use SQL::Abstract::Limit;
 
 with 'Gideon::Driver';
@@ -10,23 +12,25 @@ sub _find {
 
     my ( $dbh, $table ) = $self->_get_dbh_and_table($target);
 
-    my $mapping = $self->_get_column_mapping($target);
+    my $mapping       = $self->_get_column_mapping($target);
+    my @columns_names = values %$mapping;
     $query = $self->_translate_query( $query, $mapping );
     $order_by = $self->_translate_order_by( $order_by, $mapping );
-
-    my @columns_names = values %$mapping;
 
     my ( $stmt, @bind ) =
       SQL::Abstract::Limit->new( limit_dialect => $dbh )
       ->select( $table, \@columns_names, $query, $order_by, $limit );
 
-    my $sth = $dbh->prepare($stmt);
+    my $sth = $dbh->prepare_cached($stmt);
     $sth->execute(@bind);
 
+    my $inflators = $self->_get_inflators( $target, $dbh );
     my @instances;
 
     while ( my $data = $sth->fetchrow_hashref ) {
         @$data{ keys %$mapping } = delete @$data{ values %$mapping };
+        $data->{__is_persisted} = 1;
+        $data->{$_} = $inflators->{$_}->( $data->{$_} ) for keys %$inflators;
         push @instances, $target->new(%$data);
     }
 
@@ -42,13 +46,21 @@ sub _insert_object {
     my ($serial) = map { $_->name } grep { $_->serial } @columns;
     my $mapping = $self->_get_column_mapping($target);
 
-    my $values = {};
-    $values->{ $mapping->{$_} } = $target->$_() for keys %$mapping;
-    delete $values->{$serial} if $serial;
+    my $deflators = $self->_get_deflators($target,$dbh);
+
+    my %data;
+
+    foreach my $attr ( keys %$mapping ) {
+        my $value = $target->$attr();
+        $value = $deflators->{$attr}->($value) if $deflators->{$attr};
+        $data{ $mapping->{$attr} } = $value;
+    }
+
+    delete $data{$serial} if $serial and not defined $data{$serial};
 
     my ( $stmt, @bind ) =
       SQL::Abstract::Limit->new( limit_dialect => $dbh )
-      ->insert( $table, $values );
+      ->insert( $table, \%data );
 
     my $sth = $dbh->prepare($stmt);
     my $rv  = $sth->execute(@bind);
@@ -56,13 +68,13 @@ sub _insert_object {
     if ( $rv > 0 ) {
         my @columns = $self->_get_columns($target);
 
-        if ( $serial and not defined $values->{$serial} ) {
+        if ( $serial and not defined $data{$serial} ) {
             $target->$serial(
                 $dbh->last_insert_id( undef, undef, $table, $serial ) );
         }
     }
 
-    return 1 if $rv > 0;
+    $target->__is_persisted(1) if $rv > 0;
 }
 
 sub _remove {
@@ -85,6 +97,8 @@ sub _remove {
 
 sub _remove_object {
     my ( $self, $target ) = @_;
+
+    Gideon::Exception::ObjectNotStored->throw unless $target->__is_persisted;
 
     my $where = $self->_compute_primary_key($target);
     $self->_remove( $target, $where, 1 );
@@ -111,6 +125,8 @@ sub _update {
 
 sub _update_object {
     my ( $self, $target, $changes ) = @_;
+
+    Gideon::Exception::ObjectNotStored->throw unless $target->__is_persisted;
 
     $changes ||= $self->_compute_changes($target);
     return 1 unless %$changes;
@@ -165,9 +181,44 @@ sub _get_columns {
     my ( $self, $target ) = @_;
 
     return
-      grep { $_->does('Gideon::Meta::Attribute::Trait::DBI::Column') }
+      grep { $_->does('Gideon::DBI::Column') }
       $target->meta->get_all_attributes;
 }
+
+sub _get_inflators {
+    my ( $self, $target, $source ) = @_;
+
+    my @attributes = $target->meta->get_all_attributes;
+    my @inflated = grep { $_->does('Gideon::Inflated') } @attributes;
+
+    my %inflators;
+
+    for (@inflated) {
+        my $name     = $_->name;
+        my $inflator = $_->get_inflator($source);
+        $inflators{$name} = $inflator if $inflator;
+    }
+
+    return \%inflators;
+}
+
+sub _get_deflators {
+    my ( $self, $target, $source ) = @_;
+
+    my @attributes = $target->meta->get_all_attributes;
+    my @inflated = grep { $_->does('Gideon::Inflated') } @attributes;
+
+    my %deflators;
+
+    for (@inflated) {
+        my $name     = $_->name;
+        my $deflator = $_->get_deflator($source);
+        $deflators{$name} = $deflator if $deflator;
+    }
+
+    return \%deflators;
+}
+
 
 sub _get_column_mapping {
     my ( $self, $target ) = @_;
