@@ -1,7 +1,3 @@
-package Gideon::Manual;
-
-# ABSTRACT: What is Gideon, and how do I use it?
-
 =pod
 
 =head1 NAME
@@ -17,7 +13,7 @@ version
 Gideon is a mapping layer between POMO ( Plain Old Moose Objects ) and your data
 sources such as databases, Non-SQL storage and more. It provides a common
 interface for your persisted objects no matter what the source is so you can
-concentrate on your model ( classes and their relationship ) instead of teh code
+concentrate on your model ( classes and their relationship ) instead of txeh code
 for accessing the data.
 
 =head1 WHY GIDEON?
@@ -25,7 +21,7 @@ for accessing the data.
 There are other projects that attempt to do a similar job but Gideon is different
 in the sense that the interface provided for your classes doesn't depend on the
 data source, folliwing the Data Mapper pattern by Martin Fowler. Gideon also
-tries very hard to couse as less impact as possible on your class design.
+tries very hard to cause as less impact as possible on your class design.
 
 =head1 AN EXAMPLE
 
@@ -54,6 +50,36 @@ that Gideon needs.
   my $customer = Customer->find_one;
   $customer->remove;
 
-  my @johns    = Customer->find( name => 'john' );
+  my @johns = Customer->find( name => 'john' );
+
+=head1 TABLE OF CONTENTS
+
+=head2 Gideon::Manual::Intro
+
+Introduces Gideon and basic setup
+
+=head2 Gideon::Manual::Creating
+
+How to create records in your datastore
+
+=head2 Gideon::Manual::Finding
+
+How to search records in your datastore
+
+=head2 Gideon::Manual::Updating
+
+How to update records in your datastore
+
+=head2 Gideon::Manual::Removing
+
+How to remove records in your datastore
+
+=head2 Gideon::Manual::Plugins
+
+How to extend Gideon
+
+=head Gideon::Manual::Drivers
+
+Supported Data Stores and how to write a new one
 
 =cut

@@ -1,0 +1,27 @@
+=head1 Removing objects with Gideon
+
+Gideon can remove one object or a groups of objects depending on how it is
+invoked, B<please make sure you read and understand the documentation> as missues
+of this method can cause data corruption
+
+=head2 C<remove( [%opts] )> as a Class method
+
+Calling C<remove> as a class method will remove a group of objects from a data
+store, additionally you can filter objects to be remove by providing C<%opts>
+and it works in the same way as C<find> method does.
+
+   # Remove all named John
+   People->remove(name => 'John');
+
+   # Remove all objects
+   People->remove;
+
+=head2 C<remove()> as an Instance method
+
+When C<remove> is called to a particular instance it removes that particular
+instance without affecting other objects
+
+    # Remove first person
+    People->find_one(id =>1)->remove;
+
+=cut

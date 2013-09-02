@@ -1,0 +1,5 @@
+=head1 Supported Drivers
+
+The Gideon distribution comes with L<Gideon::Driver::DBI>
+
+=cut
