@@ -54,31 +54,31 @@ that Gideon needs.
 
 =head1 TABLE OF CONTENTS
 
-=head2 Gideon::Manual::Intro
+=head2 L<Gideon::Manual::Intro>
 
 Introduces Gideon and basic setup
 
-=head2 Gideon::Manual::Creating
+=head2 L<Gideon::Manual::Creating>
 
 How to create records in your datastore
 
-=head2 Gideon::Manual::Finding
+=head2 L<Gideon::Manual::Finding>
 
 How to search records in your datastore
 
-=head2 Gideon::Manual::Updating
+=head2 L<Gideon::Manual::Updating>
 
 How to update records in your datastore
 
-=head2 Gideon::Manual::Removing
+=head2 L<Gideon::Manual::Removing>
 
 How to remove records in your datastore
 
-=head2 Gideon::Manual::Plugins
+=head2 L<Gideon::Manual::Plugins>
 
 How to extend Gideon
 
-=head Gideon::Manual::Drivers
+=head2 L<Gideon::Manual::Drivers>
 
 Supported Data Stores and how to write a new one
 
