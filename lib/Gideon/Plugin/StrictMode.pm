@@ -5,13 +5,29 @@ use Gideon::Exceptions;
 extends 'Gideon::Plugin';
 
 sub find {
-    my $self = shift;
-    $self->_find( 'find', @_ );
+    my ( $self, $target, %query ) = @_;
+
+    my $strict_mode = delete $query{-strict};
+    my $result_set = $self->next->find( $target, %query );
+
+    if ( $strict_mode and scalar @$result_set == 0 ) {
+        Gideon::Exception::NotFound->throw;
+    }
+
+    $result_set;
 }
 
 sub find_one {
-    my $self = shift;
-    $self->_find( 'find_one', @_ );
+    my ( $self, $target, %query ) = @_;
+
+    my $strict_mode = delete $query{-strict};
+    my $result = $self->next->find_one( $target, %query );
+
+    if ( $strict_mode and not defined $result ) {
+        Gideon::Exception::NotFound->throw;
+    }
+
+    $result;
 }
 
 sub update {
@@ -31,7 +47,7 @@ sub save {
     my ( $self, $target, %options ) = @_;
 
     my $strict_mode = delete $options{-strict};
-    my $result = $self->next->save( $target );
+    my $result      = $self->next->save($target);
 
     if ( $strict_mode and not $result ) {
         Gideon::Exception::SaveFailure->throw;
@@ -51,19 +67,6 @@ sub remove {
     }
 
     $result;
-}
-
-sub _find {
-    my ( $self, $method, $target, %query ) = @_;
-
-    my $strict_mode = delete $query{-strict};
-    my $result_set = $self->next->$method( $target, %query );
-
-    if ( $strict_mode and scalar @$result_set == 0 ) {
-        Gideon::Exception::NotFound->throw;
-    }
-
-    $result_set;
 }
 
 __PACKAGE__->meta->make_immutable;

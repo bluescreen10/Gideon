@@ -31,12 +31,12 @@ sub test_find_one {
 
     my $plugin = $self->{plugin};
 
-    $self->{mock}->fake_module( 'MyDriver', find_one => sub { [] } );
+    $self->{mock}->fake_module( 'MyDriver', find_one => sub { undef } );
     lives_ok { $plugin->find_one } 'find_one: non-strict empty set';
     throws_ok { $plugin->find_one( 'Class', -strict => 1 ) }
     'Gideon::Exception::NotFound', 'find_one: strict with empty set';
 
-    $self->{mock}->fake_module( 'MyDriver', find_one => sub { [1] } );
+    $self->{mock}->fake_module( 'MyDriver', find_one => sub { 1 } );
     lives_ok { $plugin->find_one } 'find_one: non-strict';
     lives_ok { $plugin->find_one( 'Class', -strict => 1 ) } 'find_one: strict';
 }
