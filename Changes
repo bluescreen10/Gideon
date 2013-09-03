@@ -1,0 +1,7 @@
+0.0.2 - 2013-09-03
+  * Fixed bug on strict mode with find_one
+
+0.0.1 - 2013-09-02
+  * Initial release
+  * Support for DBI, Cache, ResultSets
+  * Auto-Inflate and Auto-Inflate Datetime
