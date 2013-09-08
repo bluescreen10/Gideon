@@ -1,6 +1,7 @@
 0.0.2 - 2013-09-03
   * Fixed bug on strict mode with find_one
   * Fixed pod errors and missing links
+  * Added documentation for some classes
 
 0.0.1 - 2013-09-02
   * Initial release

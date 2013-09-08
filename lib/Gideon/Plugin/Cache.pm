@@ -3,6 +3,8 @@ use Moose;
 use JSON;
 use Gideon::Registry;
 
+#ABSTRACT: Cache Plugin
+
 extends 'Gideon::Plugin';
 
 my $serializer = JSON->new->utf8->canonical;
@@ -45,3 +47,28 @@ sub _serialize_key {
 
 __PACKAGE__->meta->make_immutable;
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Gideon::Plugin::Cache
+
+=head1 SYNOPSIS
+
+  # Cached search
+  my @users = User->find( -cache_for => '10m' );
+  # If a cache is registered by Gideon::Registry, attempts to retrieve the results
+  # from the cache, if it not exists it will cache it for 10 minutes
+
+  # Non-cached search
+  my @users = User->find;
+
+=head1 DESCRIPTION
+
+You can use caching for hot searches whose results don’t change much. This plugin
+uses the cache registered using L<Gideon::Registry> to get/set objects from it.
+
+=cut

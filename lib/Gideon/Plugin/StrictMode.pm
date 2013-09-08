@@ -2,6 +2,8 @@ package Gideon::Plugin::StrictMode;
 use Moose;
 use Gideon::Exceptions;
 
+#ABSTRACT: Strict mode Plugin
+
 extends 'Gideon::Plugin';
 
 sub find {
@@ -71,3 +73,21 @@ sub remove {
 
 __PACKAGE__->meta->make_immutable;
 1;
+
+__END__
+
+=head1 NAME
+
+Gideon::Plugin::StrictMode
+
+=head1 SYNOPSIS
+
+  my @users = User->find(); # Returns undef if no users are found
+  my @users = User->find( -strict => 1 ); # Throws Gideon::Exception::NotFound
+
+=head1 DESCRIPTION
+
+By default Gideon will return undef when any operation is not successful. Strict
+mode on the other hand will rise exception when an operation is not successful
+
+=cut

@@ -2,6 +2,8 @@ package Gideon::Driver;
 use Moose::Role;
 use Gideon::Exceptions;
 
+#ABSTRACT: Gideon Driver Interface
+
 requires qw(_find _update _update_object _remove _remove_object _insert_object);
 
 sub find {
@@ -66,3 +68,11 @@ sub save {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Gideon::Driver - Driver Interface
+
+=cut

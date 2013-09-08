@@ -1,4 +1,14 @@
-=head1 Updating objects with Gideon
+package Gideon::Manual::Updating;
+
+#ABSTRACT: Updating objects
+
+=pod
+
+=head1 NAME
+
+Updating objects with Gideon
+
+=head1 DESCRIPTION
 
 Gideon can update a single object or a group objects depending on how it is
 invoked, B<please make sure you read and understand the documentation> as missues

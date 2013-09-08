@@ -1,14 +1,14 @@
+package Gideon::Manual;
+
+#ABSTRACT: Gideon Manual
+
 =pod
 
 =head1 NAME
 
 Gideon::Manual - What is Gideon, and how do I use it?
 
-=head1 VERSION
-
-version
-
-=head1 WHAT IS GIDEON?
+=head1 DESCRIPTION
 
 Gideon is a mapping layer between POMO ( Plain Old Moose Objects ) and your data
 sources such as databases, Non-SQL storage and more. It provides a common

@@ -5,6 +5,8 @@ use Gideon::Meta::Attribute::Trait::Inflate;
 use Gideon::Meta::Attribute::Trait::DBI::Inflate::DateTime;
 use SQL::Abstract::Limit;
 
+#ABSTRACT: Gideon DBI driver
+
 with 'Gideon::Driver';
 
 sub _find {
@@ -264,3 +266,15 @@ sub _translate_order_by {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Gideon::Driver::DBI - DBI driver for Gideon
+
+=head1 DESCRIPTION
+
+Bridge between Moose objects and RDB tables
+
+=cut

@@ -1,4 +1,14 @@
-=head1 Supported Drivers
+package Gideon::Manual::Drivers;
+
+#ABSTRACT: How to create a driver with Gideon
+
+=pod
+
+=head1 NAME
+
+Supported Drivers
+
+=head1 DESCRIPTION
 
 The Gideon distribution comes with L<Gideon::Driver::DBI>
 

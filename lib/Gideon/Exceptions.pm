@@ -1,3 +1,4 @@
+#ABSTRACT: Gideon Exceptions
 {
 
     package Gideon::Exception;
@@ -56,3 +57,15 @@
 
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Gideon::Exception
+
+=head1 DESCRIPTION
+
+Exception classes used by Gideon

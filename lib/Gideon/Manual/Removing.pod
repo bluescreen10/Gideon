@@ -1,4 +1,14 @@
-=head1 Removing objects with Gideon
+package Gideon::Manual::Removing;
+
+#ABSTRACT: Removing objects
+
+=pod
+
+=head1 NAME
+
+Removing objects with Gideon
+
+=head1 DESCRIPTION
 
 Gideon can remove one object or a groups of objects depending on how it is
 invoked, B<please make sure you read and understand the documentation> as missues

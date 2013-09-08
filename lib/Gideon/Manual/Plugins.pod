@@ -1,4 +1,14 @@
-=head1 Plugins
+package Gideon::Manual::Plugins;
+
+#ABSTRACT: Gideon Plugins
+
+=pod
+
+=head1 NAME
+
+Plugins
+
+=head1 DESCRIPTION
 
 TBD
 

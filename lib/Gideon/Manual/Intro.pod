@@ -1,4 +1,14 @@
-=head1 Gideon Intro
+package Gideon::Manual::Intro;
+
+#ABSTRACT: Gideon Manual Intro
+
+=pod
+
+=head1 NAME
+
+Gideon Intro
+
+=head1 DESCRIPTION
 
 Writing code to retrieve objects from data stores, such as databases, is not
 only time consuming, but it is also tedious. Sometimes what it's even worst is
@@ -84,7 +94,7 @@ C<primary_key> is another hint for Gideon telling that this field is required
 to uniquely identify a particular record from another. This is helpful when
 trying to update or remove a particular object.
 
-Finally C<traits => [ 'Gideon::DBI::Column']> is necessary for each attribute
+Finally C<<traits => [ 'Gideon::DBI::Column']>> is necessary for each attribute
 that is persisted in the database and what's adds the other meta-attributes.
 
   has artist => ( 

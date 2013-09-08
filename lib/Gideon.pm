@@ -51,7 +51,7 @@ __END__
 
 =head1 NAME
 
-Gideon
+Gideon = Data mapper for Moose classes an objects
 
 =head1 SYNOPSYS
 

@@ -1,4 +1,14 @@
-=head1 Creating objects with Gideon
+package Gideon::Manual::Creating;
+
+#ABSTRACT: Creating objects
+
+=pod
+
+=head1 NAME
+
+Creating objects with Gideon
+
+=head1 DESCRIPTION
 
 You can easily persist new object in any gideon data store by using the C<save>
 method

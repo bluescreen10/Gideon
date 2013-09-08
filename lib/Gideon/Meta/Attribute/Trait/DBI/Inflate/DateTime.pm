@@ -2,6 +2,8 @@ package Gideon::Meta::Attribute::Trait::DBI::Inflate::DateTime;
 use Moose::Role;
 use DBI;
 
+#ABSTRACT: Auto-inflate DateTime
+
 with 'Gideon::Meta::Attribute::Trait::Inflated';
 
 Moose::Util::meta_attribute_alias('Gideon::DBI::Inflate::DateTime');
@@ -50,3 +52,32 @@ sub _get_format_class {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Gideon::Meta::Attribute::Trait::DBI::Inflate::DateTime
+
+=head1 ALIAS
+
+Gideon::DBI::Inflate::DateTime
+
+=head1 SYNOPSIS
+
+  package User;
+  use Gideon driver => 'DBI';
+
+  has created_at => (
+      is => 'rw',
+      isa => 'DateTime',
+      traits => [ 'Gideon::DBI::Column', 'Gideon::DBI::Inflate::DateTime' ]
+  );
+
+=head1 DESCRIPTION
+
+Automatically inflate and deflate DateTime columns when working with RDB
+
+=cut

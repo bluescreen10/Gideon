@@ -1,4 +1,14 @@
-=head1 Finding objects with Gideon
+package Gideon::Manual::Finding;
+
+#ABSTRACT: Finding objects
+
+=pod
+
+=head1 NAME
+
+Finding objects with Gideon
+
+=head1 DESCRIPTION
 
 The Gideon API defines two methods for finding records: C<find> and C<find_one>
 

@@ -1,6 +1,8 @@
 package Gideon::Plugin;
 use Moose;
 
+#ABSTRACT: Plugin base class
+
 has next => ( is => 'rw', required => 1 );
 
 sub find_one {
@@ -30,3 +32,17 @@ sub remove {
 
 __PACKAGE__->meta->make_immutable;
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Gideon::Plugin - Base class for all Plugins
+
+=head1 DESCRIPTION
+
+This is the base class all plugins inherit from
+
+=cut
