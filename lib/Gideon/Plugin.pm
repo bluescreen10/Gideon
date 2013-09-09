@@ -27,7 +27,7 @@ sub save {
 
 sub remove {
     my $self = shift;
-    $self->next->save(@_);
+    $self->next->remove(@_);
 }
 
 __PACKAGE__->meta->make_immutable;

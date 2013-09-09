@@ -1,5 +1,8 @@
 Revision history for Perl module Gideon
 
+0.0.3 2013-09-09
+  * Fixed bug with Plugins when calling remove method
+
 0.0.2 2013-09-03
   * Fixed bug on strict mode with find_one
   * Fixed pod errors and missing links
